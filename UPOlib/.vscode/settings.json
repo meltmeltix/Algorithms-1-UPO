@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "*.ejs": "html",
+        "stack.h": "c",
+        "error.h": "c",
+        "assert.h": "c",
+        "sort_private.h": "c",
+        "sort.h": "c"
+    }
+}

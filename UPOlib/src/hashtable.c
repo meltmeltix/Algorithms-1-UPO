@@ -671,3 +671,9 @@ size_t upo_ht_hash_str_stlport(const void *x, size_t m) {
 }
 
 /*** END of HASH FUNCTIONS ***/
+
+/*** START of MORE EXERCISES ***/
+
+void upo_ht_linprob_merge(upo_ht_linprob_t dest_ht, const upo_ht_linprob_t src_ht) {
+    
+}

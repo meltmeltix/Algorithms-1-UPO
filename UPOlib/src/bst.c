@@ -523,3 +523,113 @@ upo_bst_comparator_t upo_bst_get_comparator(const upo_bst_t tree) {
 
     return tree->key_cmp;
 }
+
+size_t upo_bst_subtree_size_impl(const upo_bst_node_t *node, const void *key, int is_subtree, upo_bst_comparator_t cmp) {
+    if(node == NULL) return 0;
+
+    if(cmp(key, node->key) == 0) {
+        is_subtree = 1;
+        return is_subtree + 
+            upo_bst_subtree_size_impl(node->left, key, is_subtree, cmp) + 
+            upo_bst_subtree_size_impl(node->right, key, is_subtree, cmp);
+    } else if(cmp(key, node->key) > 0 && !is_subtree) {
+        return is_subtree + 
+            upo_bst_subtree_size_impl(node->right, key, is_subtree, cmp);
+    } else if(cmp(key, node->key) < 0 && !is_subtree) {
+        return is_subtree + 
+            upo_bst_subtree_size_impl(node->left, key, is_subtree, cmp);
+    } else {
+        return is_subtree + 
+            upo_bst_subtree_size_impl(node->left, key, is_subtree, cmp) + 
+            upo_bst_subtree_size_impl(node->right, key, is_subtree, cmp);
+    }
+    
+    return 0;
+}
+
+size_t upo_bst_subtree_size(const upo_bst_t tree, const void *key) {
+    if(tree == NULL) return 0;
+    if(tree->root == NULL) return 0;
+
+    return upo_bst_subtree_size_impl(tree->root, key, 0, tree->key_cmp);
+}
+
+/*** START of MORE EXERCISES ***/
+
+size_t upo_bst_rank_impl(const upo_bst_node_t *node, const void *key, upo_bst_comparator_t key_cmp) {
+    if (node == NULL) return 0;
+
+    if (key_cmp(node->key, key) < 0)
+        return 1 + upo_bst_rank_impl(node->left, key, key_cmp) + upo_bst_rank_impl(node->right, key, key_cmp);
+
+    return upo_bst_rank_impl(node->left, key, key_cmp) + upo_bst_rank_impl(node->right, key, key_cmp);
+}
+
+size_t upo_bst_rank(const upo_bst_t bst, const void *key) {
+    return upo_bst_rank_impl(bst->root, key, bst->key_cmp);
+}
+
+static void *upo_bst_predeccessor_impl(const upo_bst_node_t *node, const void *key, upo_bst_comparator_t cmp) {
+    if (!node) return NULL; 
+    if (cmp(key, node->key) <= 0) return upo_bst_predeccessor_impl(node->left, key, cmp);
+    else {
+        const void *right = upo_bst_predeccessor_impl(node->right, key, cmp);
+        return right ? right : node->key;
+    }
+}
+
+const void *upo_bst_predecessor(const upo_bst_t bst, const void *key) {
+    if (bst == NULL || bst->root == NULL) return NULL;
+    return upo_bst_predeccessor_impl(bst->root, key, upo_bst_get_comparator(bst));
+}
+
+void *upo_bst_get_value_depth_impl(const upo_bst_node_t *node, const void *key, long *depth, upo_bst_comparator_t key_cmp) {
+    if (node == NULL) {
+        *depth = -1;
+        return NULL;
+    }
+
+    if (key_cmp(node->key, key) > 0) {
+        (*depth)++;
+        return upo_bst_get_value_depth_impl(node->left, key, depth, key_cmp);
+    } else if (key_cmp(node->key, key) < 0) {
+        (*depth)++;
+        return upo_bst_get_value_depth_impl(node->right, key, depth, key_cmp);
+    } else
+        return node->key;
+}
+
+void *upo_bst_get_value_depth(const upo_bst_t bst, const void *key, long *depth) {
+    if (bst == NULL) {
+        *depth = -1;
+        return NULL;
+    }
+
+    *depth = 0;
+    return upo_bst_get_value_depth_impl(bst->root, key, depth, bst->key_cmp);
+}
+
+void upo_bst_keys_le_impl(upo_bst_node_t *node, const void *key, upo_bst_key_list_t *list, upo_bst_comparator_t key_cmp) {
+    if (node != NULL) {
+        if (key_cmp(node->key, key) <= 0) {
+            upo_bst_key_list_node_t *list_node = malloc(sizeof(upo_bst_key_list_node_t));
+            list_node->key = node->key;
+            list_node->next = *list;
+            *list = list_node;
+            upo_bst_keys_le_impl(node->right, key, list, key_cmp);
+        }
+
+        upo_bst_keys_le_impl(node->left, key, list, key_cmp);
+    }
+}
+
+upo_bst_key_list_t upo_bst_keys_le(const upo_bst_t bst, const void *key) {
+    upo_bst_key_list_t list = NULL;
+    upo_bst_keys_le_impl(bst->root, key, &list, bst->key_cmp);
+    return list;
+}
+
+size_t upo_bst_subtree_count_leaves_depth(const upo_bst_t bst, const void *key, size_t d) {
+    
+}
+

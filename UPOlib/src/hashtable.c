@@ -675,5 +675,9 @@ size_t upo_ht_hash_str_stlport(const void *x, size_t m) {
 /*** START of MORE EXERCISES ***/
 
 void upo_ht_linprob_merge(upo_ht_linprob_t dest_ht, const upo_ht_linprob_t src_ht) {
-    
+    if (dest_ht == NULL || src_ht == NULL) return;
+
+    for (size_t i = 0; i < src_ht->capacity; i++)
+        if (src_ht->slots[i].key != NULL)
+            upo_ht_linprob_insert(dest_ht, src_ht->slots[i].key, src_ht->slots[i].value);
 }

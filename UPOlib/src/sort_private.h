@@ -36,7 +36,15 @@ void upo_merge_sort_merge(void *base, size_t lo, size_t mid, size_t hi, size_t s
 
 void upo_quick_sort_rec(void *base, size_t lo, size_t hi, size_t size, upo_sort_comparator_t cmp);
 
+void upo_bubble_sort(void *base, size_t n, size_t size, upo_sort_comparator_t cmp);
+
+void upo_quick_sort_median3_cutoff(void *base, size_t n, size_t size, upo_sort_comparator_t cmp);
+
+void upo_quick_sort_median3_cutoff_rec(void *base, size_t lo, size_t hi, size_t size, upo_sort_comparator_t cmp);
+
 static size_t upo_quick_sort_partition(void *base, size_t lo, size_t hi, size_t size, upo_sort_comparator_t cmp);
+
+static size_t upo_quick_sort_median3_cutoff_partition(void *base, size_t lo, size_t hi, size_t size, upo_sort_comparator_t cmp);
 
 
 #endif /* UPO_SORT_PRIVATE_H */

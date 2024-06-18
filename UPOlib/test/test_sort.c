@@ -40,12 +40,8 @@ static double da[] = {3.0, 1.3, 0.4, 7.8, 13.2, -1.1, 6.0, -3.2, 78};
 static double expect_da[] = {-3.2, -1.1, 0.4, 1.3, 3.0, 6.0, 7.8, 13.2, 78.0};
 static const char *sa[] = {"The",  "quick", "brown", "fox", "jumps", "over", "the",   "lazy",  "dog"};
 static const char *expect_sa[] = {"The",  "brown", "dog",   "fox", "jumps", "lazy", "over",  "quick", "the"};
-static item_t ca[] =    {{9, "john"},    {8, "jane"},   {7, "mary"},
-                        {6, "anthony"}, {5, "stevie"}, {4, "bob"},
-                        {3, "ann"},     {2, "claire"}, {1, "alice"}};
-static item_t expect_ca[] = {{1, "alice"}, {2, "claire"}, {3, "ann"},
-                            {4, "bob"},   {5, "stevie"}, {6, "anthony"},
-                            {7, "mary"},  {8, "jane"},   {9, "john"}};
+static item_t ca[] = {{9, "john"},    {8, "jane"},   {7, "mary"}, {6, "anthony"}, {5, "stevie"}, {4, "bob"}, {3, "ann"},     {2, "claire"}, {1, "alice"}};
+static item_t expect_ca[] = {{1, "alice"}, {2, "claire"}, {3, "ann"}, {4, "bob"},   {5, "stevie"}, {6, "anthony"}, {7, "mary"},  {8, "jane"},   {9, "john"}};
 
 /* Comparators */
 
@@ -58,6 +54,8 @@ void test_sort_algorithm(void (*sort)(void *, size_t, size_t, upo_sort_comparato
 static void test_insertion_sort();
 static void test_merge_sort();
 static void test_quick_sort();
+static void test_bubble_sort();
+static void test_quick_sort_median3_cutoff();
 
 int double_comparator(const void *a, const void *b) {
     const double *aa = a;
@@ -127,6 +125,21 @@ void test_merge_sort() { test_sort_algorithm(upo_merge_sort); }
 
 void test_quick_sort() { test_sort_algorithm(upo_quick_sort); }
 
+void test_bubble_sort() { test_sort_algorithm(upo_bubble_sort); }
+
+void test_quick_sort_median3_cutoff() {
+    int ok = 1;
+    const char *test_sa[] = {"The", "quick", "brown", "fox", "jumps", "over", "the", "lazy",  "dog",   "The", "quick", "brown", "fox", "jumps", "over",  "the", "lazy",  "dog"};
+    const char *expect_test_sa[] = {"The",   "The",  "brown", "brown", "dog", "dog",   "fox",  "fox",   "jumps", "jumps", "lazy",  "lazy", "over",  "over",  "quick", "quick", "the",  "the"};
+    upo_quick_sort_median3_cutoff(test_sa, 18, sizeof(char *), string_comparator);
+
+    for (int i = 0; i < 18; ++i)
+        ok &= !string_comparator(&test_sa[i], &expect_test_sa[i]);
+    
+    assert(ok);
+    test_sort_algorithm(upo_quick_sort_median3_cutoff);
+}
+
 int main() {
     printf("Test case 'insertion sort'... ");
     fflush(stdout);
@@ -141,6 +154,16 @@ int main() {
     printf("Test case 'quick sort'... ");
     fflush(stdout);
     test_quick_sort();
+    printf("OK\n");
+
+    printf("Test case 'bubble sort'... ");
+    fflush(stdout);
+    test_bubble_sort();
+    printf("OK\n");
+
+    printf("Test case 'quick sort median 3 with cutoff'... ");
+    fflush(stdout);
+    test_quick_sort_median3_cutoff();
     printf("OK\n");
 
     return 0;

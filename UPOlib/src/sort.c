@@ -34,6 +34,21 @@
 
 #include "sort_private.h"
 
+/*** UTILS ***/
+
+void upo_swap(unsigned char *a, unsigned char *b, size_t size) {
+    unsigned char *aux = malloc(size);
+    assert(aux != NULL);
+
+    memcpy(aux,  a, size);
+    memcpy(a, b, size);
+    memcpy(b, aux, size);
+
+    free(aux);
+}
+
+/*** BEGIN of SORTING ALGORITHMS ***/
+
 void upo_insertion_sort(void *base, size_t n, size_t size, upo_sort_comparator_t cmp) {
     assert(base != NULL);
 
@@ -151,4 +166,64 @@ static size_t upo_quick_sort_partition(void *base, size_t lo, size_t hi, size_t 
 
     free(aux);
     return j;
+}
+
+/*** BEGIN of MORE EXERCISES ***/
+
+void upo_bubble_sort(void *base, size_t n, size_t size, upo_sort_comparator_t cmp) {
+    unsigned char *ptr = base;
+    
+    for (size_t i = 0; i < n; i++) {
+        for (size_t j = 0; j < ((n - 1) - i); j++) {
+            if (cmp(ptr + j * size, ptr + (j + 1) * size) > 0) {
+                upo_swap(ptr + (j + 1) * size, ptr + j * size, size);
+            }
+        }
+    }
+}
+
+void upo_quick_sort_median3_cutoff(void *base, size_t n, size_t size, upo_sort_comparator_t cmp) {
+    upo_quick_sort_median3_cutoff_rec(base, 0, n - 1, size, cmp);
+}
+
+void upo_quick_sort_median3_cutoff_rec(void *base, size_t lo, size_t hi, size_t size, upo_sort_comparator_t cmp) {
+    size_t pivot;
+
+    if (lo >= hi) return;
+
+    if ((hi - lo) + 1 <= 10) {
+        upo_insertion_sort((unsigned char *)base + lo * size, hi - lo + 1, size, cmp);
+        return;
+    }
+
+    size_t j = upo_quick_sort_median3_cutoff_partition(base, lo, hi, size, cmp);
+    if (j > 0)
+        upo_quick_sort_median3_cutoff_rec(base, lo, j - 1, size, cmp);
+    upo_quick_sort_median3_cutoff_rec(base, j + 1, hi, size, cmp);
+
+    // Partitioning the whole array
+    pivot = upo_quick_sort_median3_cutoff_partition(base, lo, hi, size, cmp);
+    if (pivot > 0)
+        upo_quick_sort_median3_cutoff_rec(base, lo, pivot - 1, size, cmp);
+    upo_quick_sort_median3_cutoff_rec(base, pivot + 1, hi, size, cmp);
+
+}
+
+size_t upo_quick_sort_median3_cutoff_partition(void *base, size_t lo, size_t hi, size_t size, upo_sort_comparator_t cmp) {
+    size_t mid = (hi + lo) / 2;
+    unsigned char *ptr = base;
+    unsigned char *lo_ptr = ptr + lo * size;
+    unsigned char *mid_ptr = ptr + mid * size;
+    unsigned char *hi_ptr = ptr + hi * size;
+
+    // Swaps nodes depending on size
+    if (cmp(lo_ptr, mid_ptr) > 0) upo_swap(lo_ptr, mid_ptr, size);
+    if (cmp(lo_ptr, hi_ptr) > 0) upo_swap(lo_ptr, hi_ptr, size);
+    if (cmp(mid_ptr, hi_ptr) > 0) upo_swap(mid_ptr, hi_ptr, size);
+
+    // Check whether these are the only nodes left
+    if ((hi - lo) + 1 <= 3) return mid;
+    
+    upo_swap(mid_ptr, ptr + (lo + 1) * size, size);
+    return upo_quick_sort_partition(base, lo + 1, hi - 1, size, cmp);
 }
